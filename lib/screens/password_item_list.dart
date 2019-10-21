@@ -134,9 +134,9 @@ class PasswordItemListState extends State<PasswordItemList> {
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
-  void navigateToDetail(PasswordItem note, String lockerName) async {
+  void navigateToDetail(PasswordItem passwordItem, String lockerName) async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return PasswordItemDetail(note, lockerName);
+      return PasswordItemDetail(passwordItem, lockerName);
     }));
 
     if(result) {
@@ -147,11 +147,11 @@ class PasswordItemListState extends State<PasswordItemList> {
   void updateListView() {
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
     dbFuture.then((database) {
-      Future<List<PasswordItem>> noteListFuture = databaseHelper.getPasswordItemList();
-      noteListFuture.then((noteList) {
+      Future<List<PasswordItem>> passwordItemListFuture = databaseHelper.getPasswordItemList();
+      passwordItemListFuture.then((passwordItemList) {
         setState(() {
-          this.passwordItemList=noteList;
-          this.count=noteList.length;
+          this.passwordItemList=passwordItemList;
+          this.count=passwordItemList.length;
         });
       });
     });

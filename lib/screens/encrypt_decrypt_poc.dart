@@ -2,8 +2,11 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:flutter_bone/models/salt_pepper_item.dart';
+import 'package:flutter_bone/data/salt_pepper.dart';
+import 'package:flutter_bone/utils/database_helper.dart';
 import 'package:flutter/services.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class EncryptDecryptPoc extends StatefulWidget {
   @override
@@ -21,18 +24,19 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
   String _encryptedMessage = "";
   String _password = "";
 
+  DatabaseHelper databaseHelper = DatabaseHelper();
+  List<SaltPepperItem> _saltPepperItemList;
+  int spCount = 0;
+
   static const platform = const MethodChannel('iceberg.gunsnhoney.flutter_bone/cypher');
-
-
 
   @override
   void initState() {
     super.initState();
-    _generateSalt();
-    _generatePepper();
+    _getSaltPepper();
   }
 
-  Uint8List _salt;
+  //Uint8List _salt;
   Future<Uint8List> _generateSalt() async {
     Uint8List salt;
     try {
@@ -42,12 +46,12 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
         int a = 4;
     }
     setState(() {
-      this._salt = salt;
+      SaltPepper.salt = salt;
     });
     return salt;
   }
 
-  Uint8List _pepper;
+  //Uint8List _pepper;
   Future<Uint8List> _generatePepper() async {
     Uint8List pepper;
     try {
@@ -57,7 +61,7 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
       int a = 4;
     }
     setState(() {
-      this._pepper = pepper;
+      SaltPepper.pepper = pepper;
     });
     return pepper;
   }
@@ -163,25 +167,52 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
                   //fourth Element
                   Padding(
                     padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                    child: TextField(
-                      controller: passwordController,
-                      style: textStyle,
-                      onChanged: (value) {
-                        debugPrint(
-                            'Something changed in the password Text Field');
-                        updatePassword();
-                      },
-                      decoration: InputDecoration(
-                          labelText: "Password",
-                          labelStyle: textStyle,
-                          errorStyle: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 15.0,
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                        child: TextField(
+                          controller: passwordController,
+                          style: textStyle,
+                          onChanged: (value) {
+                            debugPrint(
+                                'Something changed in the password Text Field');
+                            updatePassword();
+                          },
+                          decoration: InputDecoration(
+                              labelText: "Password",
+                              labelStyle: textStyle,
+                              errorStyle: TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 15.0,
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0)
+                              )
                           ),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0)
-                          )
-                      ),
+                        ),
+                        ),
+                        Container(width: 5.0),
+                        Expanded(
+                          child: RaisedButton(
+                            color: Theme
+                                .of(context)
+                                .primaryColorDark,
+                            textColor: Theme
+                                .of(context)
+                                .primaryColorLight,
+                            child: Text(
+                              'set password',
+                              textScaleFactor: 1.5,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                debugPrint("set password button clicked");
+                                _generateSaltPepper();
+                              });
+                            },
+                          ),
+                        )
+                      ],
                     ),
                   ),
 
@@ -302,6 +333,7 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
 
   void updatePassword() {
     _password = passwordController.text;
+
   }
 
   void moveToLastScreen() {
@@ -310,7 +342,7 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
 
   void _encrypt() async {
 
-    Uint8List resultEncryptedMsg = await _encryptMsg(_clearMessage, _password, _salt, _pepper);
+    Uint8List resultEncryptedMsg = await _encryptMsg(_clearMessage, _password, SaltPepper.salt, SaltPepper.pepper);
 
     int result = 1;
 
@@ -322,7 +354,7 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
   }
 
   void _decrypt() async {
-    String resultDecrypt = await _decryptMsg(_encryptedMessageByteForm, _password, _salt, _pepper);
+    String resultDecrypt = await _decryptMsg(_encryptedMessageByteForm, _password, SaltPepper.salt, SaltPepper.pepper);
 
     int result =1 ;
 //    if(result!=0) {
@@ -332,11 +364,79 @@ class _EncryptDecryptPocState extends State<EncryptDecryptPoc> {
 //    }
   }
 
+  void _getSaltPepper() async {
+    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+    dbFuture.then((database) {
+      Future<int> count = _getSaltPepperCount(context);
+      count.then((cnt) {
+        if(cnt == 0) {
+          Future<Uint8List> futureSalt =_generateSalt();
+          futureSalt.then((salt) {
+            Future<Uint8List> futurePepper =_generatePepper();
+            futurePepper.then((pepper) {
+              _insertSaltPepper(context, new SaltPepperItem(SaltPepper.salt,SaltPepper.pepper));
+          });});
+        } else if(cnt == 1) {
+          Future<List<SaltPepperItem>> saltPepperItemListFuture = databaseHelper.getSaltPepperItemList();
+          saltPepperItemListFuture.then((saltPepperItemList) {
+            setState(() {
+              this._saltPepperItemList=saltPepperItemList;
+              this.spCount=saltPepperItemList.length;
+              SaltPepper.salt=saltPepperItemList[0].salt;
+              SaltPepper.pepper=saltPepperItemList[0].pepper;
+            });
+          });
+        }
+      });
+    });
+  }
+
+  //Update database with new SaltPepper.
+  void _generateSaltPepper() async {
+    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+    dbFuture.then((database) {
+      Future<int> count = _getSaltPepperCount(context);
+      count.then((cnt) {
+        if(cnt == 0) {
+          Future<Uint8List> futureSalt =_generateSalt();
+          futureSalt.then((salt) {
+            Future<Uint8List> futurePepper =_generatePepper();
+            futurePepper.then((pepper) {
+              _insertSaltPepper(context, new SaltPepperItem(SaltPepper.salt,SaltPepper.pepper));
+            });});
+        } else if(cnt == 1) {
+          Future<Uint8List> futureSalt =_generateSalt();
+          futureSalt.then((salt) {
+            Future<Uint8List> futurePepper =_generatePepper();
+            futurePepper.then((pepper) {
+              _updateSaltPepper(context, new SaltPepperItem(SaltPepper.salt,SaltPepper.pepper));
+            });});
+        }
+      });
+    });
+  }
   void _showAlertDialog(String lockerName, String message) {
     AlertDialog alertDialog = AlertDialog(
       title: Text(lockerName),
       content: Text(message),
     );
     showDialog(context: context,builder: (_) => alertDialog);
+  }
+
+  void _insertSaltPepper(BuildContext context, SaltPepperItem saltPepperItem) async {
+    int result = await databaseHelper.insertSaltPepperItem(saltPepperItem);
+  }
+
+  void _updateSaltPepper(BuildContext context, SaltPepperItem saltPepperItem) async {
+    int result = await databaseHelper.updateSaltPepperItem(saltPepperItem);
+  }
+
+  Future<int> _getSaltPepperCount(BuildContext context) async {
+    int result = await databaseHelper.getSaltPepperCount();
+    return result;
+  }
+
+  void _deleteSaltPepper(BuildContext context, SaltPepperItem saltPepperItem) async {
+    int result = await databaseHelper.deleteSaltPepperItem(saltPepperItem.id);
   }
 }
