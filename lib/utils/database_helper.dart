@@ -60,7 +60,7 @@ class DatabaseHelper {
   //Fetch
   Future<List<Map<String, dynamic>>> getPasswordItemMapList() async {
     Database db = await this.database;
-    //var result = await db.rawQuery('SELECT * FROM $noteTable order by $colLockerType ASC');
+    //var result = await db.rawQuery('SELECT * FROM $walletItemTable order by $colLockerType ASC');
     var result = await db.query(walletItemTable, orderBy: '$colLockerType ASC');
     return result;
   }

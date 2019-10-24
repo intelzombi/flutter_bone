@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bone/screens/encrypt_decrypt_poc.dart';
-import 'package:flutter_bone/screens/password_item_list.dart';
+import 'package:flutter_bone/screens/create_password.dart';
+import 'package:flutter_bone/screens/login.dart';
 
 void main() => runApp(MyApp());
 
@@ -23,9 +23,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
 //      home: PasswordItemList(),
-      home: EncryptDecryptPoc(),
+//      home: EncryptDecryptPoc(),
+      home: CreatePassword(),
     );
   }
 }
-
-
