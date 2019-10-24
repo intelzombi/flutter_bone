@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bone/channels/cypher_channel.dart';
 import 'package:flutter_bone/data/salt_pepper.dart';
 import 'package:flutter_bone/models/salt_pepper_item.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
@@ -45,64 +45,13 @@ class _CreatePasswordState extends State<CreatePassword> {
   List<SaltPepperItem> _saltPepperItemList;
   int spCount = 0;
 
-  static const platform =
-      const MethodChannel('iceberg.gunsnhoney.flutter_bone/cypher');
-
   @override
   void initState() {
     super.initState();
     _getSaltPepper();
   }
 
-  Future<Uint8List> _generateSalt() async {
-    Uint8List salt;
-    try {
-      final Uint8List result = await platform.invokeMethod('generateSalt');
-      salt = result;
-    } on PlatformException catch (e) {
-      int a = 4;
-    }
-    setState(() {
-      SaltPepper.salt = salt;
-    });
-    return salt;
-  }
-
-  Future<Uint8List> _generatePepper() async {
-    Uint8List pepper;
-    try {
-      final Uint8List result = await platform.invokeMethod('generateIV');
-      pepper = result;
-    } on PlatformException catch (e) {
-      int a = 4;
-    }
-    setState(() {
-      SaltPepper.pepper = pepper;
-    });
-    return pepper;
-  }
-
   String _decryptedMessage = "decryptedMessage";
-
-  Future<String> _decryptMsg(Uint8List encryptedMessage, String password,
-      Uint8List salt, Uint8List pepper) async {
-    String decryptedMessage;
-    try {
-      final String result =
-          await platform.invokeMethod('decryptMsg', <String, dynamic>{
-        'password': password,
-        'encryptedMessage': encryptedMessage,
-        'salt': salt,
-        'pepper': pepper,
-      });
-      decryptedMessage = result;
-    } on PlatformException catch (e) {}
-
-    setState(() {
-      _decryptedMessage = decryptedMessage;
-    });
-    return decryptedMessage;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,15 +104,27 @@ class _CreatePasswordState extends State<CreatePassword> {
     Navigator.pop(context, true);
   }
 
+  void saltSetState(Uint8List salt) {
+      setState(() {
+        SaltPepper.salt = salt;
+      });
+  }
+
+  void pepperSetState(Uint8List pepper) {
+    setState(() {
+      SaltPepper.pepper = pepper;
+    });
+  }
+
   void _getSaltPepper() async {
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
     dbFuture.then((database) {
       Future<int> count = _getSaltPepperCount(context);
       count.then((cnt) {
         if (cnt == 0) {
-          Future<Uint8List> futureSalt = _generateSalt();
+          Future<Uint8List> futureSalt = CypherChannel.generateSalt(saltSetState);
           futureSalt.then((salt) {
-            Future<Uint8List> futurePepper = _generatePepper();
+            Future<Uint8List> futurePepper = CypherChannel.generatePepper(pepperSetState);
             futurePepper.then((pepper) {
               _insertSaltPepper(context,
                   new SaltPepperItem(SaltPepper.salt, SaltPepper.pepper));
@@ -192,18 +153,18 @@ class _CreatePasswordState extends State<CreatePassword> {
       Future<int> count = _getSaltPepperCount(context);
       count.then((cnt) {
         if (cnt == 0) {
-          Future<Uint8List> futureSalt = _generateSalt();
+          Future<Uint8List> futureSalt = CypherChannel.generateSalt(saltSetState);
           futureSalt.then((salt) {
-            Future<Uint8List> futurePepper = _generatePepper();
+            Future<Uint8List> futurePepper = CypherChannel.generatePepper(pepperSetState);
             futurePepper.then((pepper) {
               _insertSaltPepper(context,
                   new SaltPepperItem(SaltPepper.salt, SaltPepper.pepper));
             });
           });
         } else if (cnt == 1) {
-          Future<Uint8List> futureSalt = _generateSalt();
+          Future<Uint8List> futureSalt = CypherChannel.generateSalt(saltSetState);
           futureSalt.then((salt) {
-            Future<Uint8List> futurePepper = _generatePepper();
+            Future<Uint8List> futurePepper = CypherChannel.generatePepper(pepperSetState);
             futurePepper.then((pepper) {
               _updateSaltPepper(context,
                   new SaltPepperItem(SaltPepper.salt, SaltPepper.pepper));

@@ -4,14 +4,14 @@ import 'package:flutter_bone/utils/utils.dart';
 
 class NewPassword extends StatefulWidget {
 
-  Function successfullAction;
+  Function successfulAction;
 
   @override
   NewPasswordState createState() {
-    return NewPasswordState(successfullAction);
+    return NewPasswordState(successfulAction);
   }
 
-  NewPassword(this.successfullAction);
+  NewPassword(this.successfulAction);
 }
 
 class NewPasswordState extends State<NewPassword> {
@@ -72,7 +72,6 @@ class NewPasswordState extends State<NewPassword> {
                   "Confirm New Password",
                 ),
               ),
-//                    //fourth Element
               Padding(
                 padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
                 child: Column(
@@ -125,8 +124,6 @@ class NewPasswordState extends State<NewPassword> {
                         },
                       ),
                     )
-
-//                          Container(width: 5.0),
                   ],
                 ),
               )
