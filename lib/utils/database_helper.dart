@@ -104,7 +104,6 @@ class DatabaseHelper {
   //Update
   Future<int> updateSaltPepperItem(SaltPepperItem saltPepperItem) async {
     Database db = await this.database;
-    //TODO Verify Where for columb id works correctly;
     var result = await db.update(saltPepperTable, saltPepperItem.toMap(), where: '$colId = 1');
     return result;
   }
