@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bone/models/wallet_item.dart';
 import 'package:flutter_bone/screens/create_password.dart';
 import 'package:flutter_bone/screens/wallet_item_detail.dart';
-import 'package:flutter_bone/screens/password_item_list.dart';
+import 'package:flutter_bone/screens/wallet_item_list.dart';
 
 class WalletNavigator {
   static void navigateToList(BuildContext context) async {
