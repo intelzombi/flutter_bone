@@ -52,9 +52,9 @@ class CypherChannel {
       encryptedMessageByteForm = result;
 
     } on PlatformException catch (e) {
-
+        int a =4;
     }
-    setState(encryptedMessageByteForm);
+    setState(clearMessage, encryptedMessageByteForm);
     //Hint
 //    setState(() {
 //      _encryptedMessageByteForm = encryptedMessageByteForm;

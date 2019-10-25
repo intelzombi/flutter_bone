@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bone/models/password_item.dart';
+import 'package:flutter_bone/models/wallet_item.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
@@ -7,7 +7,7 @@ import 'dart:async';
 
 class PasswordItemDetail extends StatefulWidget {
   final String appBarTitle;
-  final PasswordItem note;
+  final WalletItem note;
   PasswordItemDetail(this.note, this.appBarTitle);
 
   @override
@@ -26,7 +26,7 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
   TextEditingController passwordController = TextEditingController();
 
   String appBarTitle;
-  PasswordItem passwordItem;
+  WalletItem passwordItem;
   PaswordItemDetailState(this.passwordItem, this.appBarTitle);
   @override
   Widget build(BuildContext context) {
@@ -264,9 +264,9 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
     moveToLastScreen();
     int result;
     if (passwordItem.id != null) {
-      result = await helper.updatePasswordItem(passwordItem);
+      result = await helper.updateWalletItem(passwordItem);
     } else {
-      result = await helper.insertPasswordItem(passwordItem);
+      result = await helper.insertWalletItem(passwordItem);
     }
 
     if (result != 0) { //success
@@ -282,7 +282,7 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
       _showAlertDialog('Status', 'No Wallet Item was deleted');
       return;
     }
-    int result = await helper.deletePasswordItem(passwordItem.id);
+    int result = await helper.deleteWalletItem(passwordItem.id);
     if(result!=0) {
       _showAlertDialog('Status', 'Wallet Item Deleted Successfully');
     } else {

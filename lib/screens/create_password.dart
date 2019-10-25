@@ -3,8 +3,12 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bone/channels/cypher_channel.dart';
+import 'package:flutter_bone/data/password_data.dart';
+import 'package:flutter_bone/data/password_data_util.dart';
 import 'package:flutter_bone/data/salt_pepper.dart';
+import 'package:flutter_bone/data/salt_pepper_util.dart';
 import 'package:flutter_bone/models/salt_pepper_item.dart';
+import 'package:flutter_bone/screens/password_item_list.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
 import 'package:flutter_bone/widgets/NewPassword.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -38,7 +42,7 @@ class _CreatePasswordState extends State<CreatePassword> {
   @override
   void initState() {
     super.initState();
-    _getSaltPepper();
+    SaltPepperUtil.getSaltPepper(databaseHelper, saltSetState, pepperSetState, saltPepperSetState);
   }
 
   String _decryptedMessage = "decryptedMessage";
@@ -83,13 +87,22 @@ class _CreatePasswordState extends State<CreatePassword> {
     );
   }
 
-  void _updatePassword(String password) {
+  void _updatePassword(String password) async {
     _password = password;
-    _generateSaltPepper();
+    await SaltPepperUtil.generateSaltPepper(databaseHelper,saltSetState,pepperSetState);
+    await PasswordDataUtil.generatePasswordData(databaseHelper, _password, passwordDataSetState);
+    navigateToList();
   }
 
   void moveToLastScreen() {
     Navigator.pop(context, true);
+  }
+
+  void passwordDataSetState(String clearPassword, Uint8List password) {
+    setState(() {
+      PasswordData.password = password;
+      PasswordData.clearPassword = clearPassword;
+    });
   }
 
   void saltSetState(Uint8List salt) {
@@ -104,80 +117,23 @@ class _CreatePasswordState extends State<CreatePassword> {
     });
   }
 
-  void _getSaltPepper() async {
-    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
-    dbFuture.then((database) {
-      Future<int> count = _getSaltPepperCount();
-      count.then((cnt) {
-        if (cnt == 0) {
-          Future<Uint8List> futureSalt = CypherChannel.generateSalt(saltSetState);
-          futureSalt.then((salt) {
-            Future<Uint8List> futurePepper = CypherChannel.generatePepper(pepperSetState);
-            futurePepper.then((pepper) {
-              _insertSaltPepper(
-                  new SaltPepperItem(SaltPepper.salt, SaltPepper.pepper));
-            });
-          });
-        } else if (cnt == 1) {
-          Future<List<SaltPepperItem>> saltPepperItemListFuture =
-              databaseHelper.getSaltPepperItemList();
-          saltPepperItemListFuture.then((saltPepperItemList) {
-            setState(() {
-              this._saltPepperItemList = saltPepperItemList;
-              this.spCount = saltPepperItemList.length;
-              SaltPepper.salt = saltPepperItemList[0].salt;
-              SaltPepper.pepper = saltPepperItemList[0].pepper;
-            });
-          });
-        }
-      });
+  void saltPepperSetState(List<SaltPepperItem> saltPepperItemList) {
+    setState(() {
+      this._saltPepperItemList = saltPepperItemList;
+      this.spCount = saltPepperItemList.length;
+      SaltPepper.salt = saltPepperItemList[0].salt;
+      SaltPepper.pepper = saltPepperItemList[0].pepper;
     });
   }
 
-  //Update database with new SaltPepper.
-  void _generateSaltPepper() async {
-    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
-    dbFuture.then((database) {
-      Future<int> count = _getSaltPepperCount();
-      count.then((cnt) {
-        if (cnt == 0) {
-          Future<Uint8List> futureSalt = CypherChannel.generateSalt(saltSetState);
-          futureSalt.then((salt) {
-            Future<Uint8List> futurePepper = CypherChannel.generatePepper(pepperSetState);
-            futurePepper.then((pepper) {
-              _insertSaltPepper(
-                  new SaltPepperItem(SaltPepper.salt, SaltPepper.pepper));
-            });
-          });
-        } else if (cnt == 1) {
-          Future<Uint8List> futureSalt = CypherChannel.generateSalt(saltSetState);
-          futureSalt.then((salt) {
-            Future<Uint8List> futurePepper = CypherChannel.generatePepper(pepperSetState);
-            futurePepper.then((pepper) {
-              _updateSaltPepper(
-                  new SaltPepperItem(SaltPepper.salt, SaltPepper.pepper));
-            });
-          });
-        }
-      });
-    });
+  void navigateToList() async {
+    bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return PasswordItemList();
+    }));
+
+    if(result) {
+      // do something maybe
+    }
   }
 
-  void _insertSaltPepper(SaltPepperItem saltPepperItem) async {
-    int result = await databaseHelper.insertSaltPepperItem(saltPepperItem);
-  }
-
-  void _updateSaltPepper(SaltPepperItem saltPepperItem) async {
-    int result = await databaseHelper.updateSaltPepperItem(saltPepperItem);
-  }
-
-  Future<int> _getSaltPepperCount() async {
-    int result = await databaseHelper.getSaltPepperCount();
-    return result;
-  }
-
-  void _deleteSaltPepper(
-      BuildContext context, SaltPepperItem saltPepperItem) async {
-    int result = await databaseHelper.deleteSaltPepperItem(saltPepperItem.id);
-  }
 }

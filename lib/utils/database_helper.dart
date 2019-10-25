@@ -1,9 +1,10 @@
+import 'package:flutter_bone/models/password_item.dart';
 import 'package:flutter_bone/models/salt_pepper_item.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_bone/models/password_item.dart';
+import 'package:flutter_bone/models/wallet_item.dart';
 
 class DatabaseHelper {
   static DatabaseHelper _databaseHelper; // Singleton DatabaseHelper
@@ -12,6 +13,7 @@ class DatabaseHelper {
 
   String walletItemTable = 'wallet_item_table';
   String saltPepperTable = 'salt_pepper_table';
+  String passwordTable = 'password_table';
   String colSalt = 'salt';
   String colPepper = 'pepper';
   String colId = 'id';
@@ -48,6 +50,19 @@ class DatabaseHelper {
     await db.execute('CREATE TABLE $walletItemTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colLockerName TEXT, '
     '$colUserName TEXT, $colPassword TEXT, $colLockerType INTEGER)');
     await db.execute('CREATE TABLE $saltPepperTable($colId INTEGER PRIMARY KEY, $colSalt BLOB, $colPepper BLOB)' );
+    await db.execute('CREATE TABLE $passwordTable($colId INTEGER PRIMARY KEY, $colPassword BLOB)');
+  }
+
+  //Fetch
+  Future<List<Map<String, dynamic>>> getPasswordItemMapList() async {
+    Database db = await this.database;
+    int cnt = await getPasswordItemCount();
+    if (cnt > 0) {
+      var result = await db.rawQuery(
+          'SELECT * FROM $passwordTable where $colId == 1');
+      return result;
+    }
+    return new List<Map<String,dynamic>>();
   }
 
   //Fetch
@@ -58,7 +73,7 @@ class DatabaseHelper {
   }
 
   //Fetch
-  Future<List<Map<String, dynamic>>> getPasswordItemMapList() async {
+  Future<List<Map<String, dynamic>>> getWalletItemMapList() async {
     Database db = await this.database;
     //var result = await db.rawQuery('SELECT * FROM $walletItemTable order by $colLockerType ASC');
     var result = await db.query(walletItemTable, orderBy: '$colLockerType ASC');
@@ -73,9 +88,16 @@ class DatabaseHelper {
   }
 
   //Insert
+  Future<int> insertWalletItem(WalletItem walletItem) async {
+    Database db = await this.database;
+    var result = await db.insert(walletItemTable, walletItem.toMap());
+    return result;
+  }
+
+  //Insert
   Future<int> insertPasswordItem(PasswordItem passwordItem) async {
     Database db = await this.database;
-    var result = await db.insert(walletItemTable, passwordItem.toMap());
+    var result = await db.insert(passwordTable, passwordItem.toMap());
     return result;
   }
 
@@ -88,9 +110,16 @@ class DatabaseHelper {
   }
 
   //Update
+  Future<int> updateWalletItem(WalletItem walletItem) async {
+    Database db = await this.database;
+    var result = await db.update(walletItemTable, walletItem.toMap(), where: '$colId = ?', whereArgs: [walletItem.id]);
+    return result;
+  }
+
+  //Update
   Future<int> updatePasswordItem(PasswordItem passwordItem) async {
     Database db = await this.database;
-    var result = await db.update(walletItemTable, passwordItem.toMap(), where: '$colId = ?', whereArgs: [passwordItem.id]);
+    var result = await db.update(passwordTable, passwordItem.toMap(), where: '$colId = 1');
     return result;
   }
 
@@ -102,13 +131,21 @@ class DatabaseHelper {
   }
 
   //Delete
-  Future<int> deletePasswordItem(int id) async {
+  Future<int> deleteWalletItem(int id) async {
     var db = await this.database;
     int result = await db.rawDelete('DELETE FROM $walletItemTable WHERE $colId = $id');
     return result;
   }
 
-  //GEt Number of SaltPepperItems
+  //Delete
+  Future<int> deletePasswordItem(int id) async {
+    var db = await this.database;
+    int result = await db.rawDelete('DELETE FROM $passwordTable WHERE $colId = $id');
+    return result;
+  }
+
+
+  //Get Number of SaltPepperItems
   Future<int> getSaltPepperCount() async {
     Database db = await this.database;
     List<Map<String,dynamic>> x = await db.rawQuery('SELECT COUNT (*) from $saltPepperTable');
@@ -124,16 +161,25 @@ class DatabaseHelper {
     return result;
   }
 
-  Future<List<PasswordItem>> getPasswordItemList() async {
-    var passwordItemMapList = await getPasswordItemMapList();
+  //Get Number of SaltPepperItems
+  Future<int> getPasswordItemCount() async {
+    Database db = await this.database;
+    List<Map<String,dynamic>> x = await db.rawQuery('SELECT COUNT (*) from $passwordTable');
+    int result = Sqflite.firstIntValue(x);
+    return result;
+  }
+
+
+  Future<List<WalletItem>> getWalletItemList() async {
+    var passwordItemMapList = await getWalletItemMapList();
     int count = passwordItemMapList.length;
 
-    List<PasswordItem> passwordItemList = List<PasswordItem>();
+    List<WalletItem> walletItemList = List<WalletItem>();
 
     for (int i=0; i<count; i++) {
-      passwordItemList.add(PasswordItem.fromMapObject(passwordItemMapList[i]));
+      walletItemList.add(WalletItem.fromMapObject(passwordItemMapList[i]));
     }
-    return passwordItemList;
+    return walletItemList;
   }
 
   Future<List<SaltPepperItem>> getSaltPepperItemList() async {
@@ -147,4 +193,17 @@ class DatabaseHelper {
     }
     return saltPepperItemList;
   }
+
+  Future<List<PasswordItem>> getPasswordItemList() async {
+    var passwordItemMapList = await getPasswordItemMapList();
+    int count = passwordItemMapList.length;
+
+    List<PasswordItem> passwordItemList = List<PasswordItem>();
+
+    for (int i=0; i<count; i++) {
+      passwordItemList.add(PasswordItem.fromMapObject(passwordItemMapList[i]));
+    }
+    return passwordItemList;
+  }
+
 }

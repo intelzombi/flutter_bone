@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_bone/screens/password_item_detail.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bone/models/password_item.dart';
+import 'package:flutter_bone/models/wallet_item.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
@@ -18,7 +18,7 @@ class PasswordItemList extends StatefulWidget {
 
 class PasswordItemListState extends State<PasswordItemList> {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<PasswordItem> passwordItemList;
+  List<WalletItem> passwordItemList;
   int count = 0;
 
   static const platform = const MethodChannel('iceberg.gunsnhoney.flutter_bone/cypher');
@@ -45,7 +45,7 @@ class PasswordItemListState extends State<PasswordItemList> {
   @override
   Widget build(BuildContext context) {
     if(passwordItemList == null) {
-      passwordItemList = List<PasswordItem>();
+      passwordItemList = List<WalletItem>();
       updateListView();
     }
     return Scaffold(
@@ -55,7 +55,7 @@ class PasswordItemListState extends State<PasswordItemList> {
       body: getListView(),
       floatingActionButton: FloatingActionButton(onPressed: () {
         debugPrint('floating action pressed');
-        navigateToDetail(PasswordItem( 2,'','',''),"Add Wallet Item");
+        navigateToDetail(WalletItem( 2,'','',''),"Add Wallet Item");
       },
         tooltip: '2 cents',
         child: Icon(Icons.add),),
@@ -121,8 +121,8 @@ class PasswordItemListState extends State<PasswordItemList> {
     }
   }
 
-  void _delete(BuildContext context, PasswordItem note) async {
-    int result = await databaseHelper.deletePasswordItem(note.id);
+  void _delete(BuildContext context, WalletItem note) async {
+    int result = await databaseHelper.deleteWalletItem(note.id);
     if(result != 0) {
       _showSnackBar(context, 'Note Deleted Successfully');
       updateListView();
@@ -134,7 +134,7 @@ class PasswordItemListState extends State<PasswordItemList> {
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
-  void navigateToDetail(PasswordItem passwordItem, String lockerName) async {
+  void navigateToDetail(WalletItem passwordItem, String lockerName) async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return PasswordItemDetail(passwordItem, lockerName);
     }));
@@ -147,7 +147,7 @@ class PasswordItemListState extends State<PasswordItemList> {
   void updateListView() {
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
     dbFuture.then((database) {
-      Future<List<PasswordItem>> passwordItemListFuture = databaseHelper.getPasswordItemList();
+      Future<List<WalletItem>> passwordItemListFuture = databaseHelper.getWalletItemList();
       passwordItemListFuture.then((passwordItemList) {
         setState(() {
           this.passwordItemList=passwordItemList;
