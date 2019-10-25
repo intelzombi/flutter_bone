@@ -1,7 +1,3 @@
-import 'dart:typed_data';
-
-import 'package:flutter/services.dart';
-import 'package:flutter_bone/channels/cypher_channel.dart';
 import 'package:flutter_bone/screens/wallet_item_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bone/models/wallet_item.dart';
@@ -21,27 +17,6 @@ class WalletItemListState extends State<WalletItemList> {
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<WalletItem> walletItemList;
   int count = 0;
-
-  //static const platform = const MethodChannel('iceberg.gunsnhoney.flutter_bone/cypher');
-  ByteBuffer _iv;
-  //String _iv ;
-
-//  Future<void> _getIV() async {
-//     ByteBuffer iv;
-////   String iv='nothing has changed';
-//    try {
-////      final Uint8List result = await platform.invokeMethod('getIV');
-////      iv.addAll(result);
-//      final Uint8List result = await platform.invokeMethod('getIV');
-//      iv = Uint8List.fromList(result).buffer;
-//    } on PlatformException catch (e) {
-//     //iv='we didn\'t see the cat';
-//    }
-//
-//    setState(() {
-//      _iv=iv;
-//    });
-//  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +61,7 @@ class WalletItemListState extends State<WalletItemList> {
               },
             ),
             onTap: () {
-              CypherChannel.getIV(ivSetState);
-              debugPrint("ListTile Tapped" + _iv.toString());
+              debugPrint("ListTile Tapped");
               navigateToDetail(this.walletItemList[position],'Edit Wallet Item');
             },
           ),
@@ -122,12 +96,6 @@ class WalletItemListState extends State<WalletItemList> {
     }
   }
 
-  void ivSetState(ByteBuffer iv) {
-    setState(() {
-      _iv = iv;
-    });
-  }
-
   void _delete(BuildContext context, WalletItem note) async {
     int result = await databaseHelper.deleteWalletItem(note.id);
     if(result != 0) {
@@ -141,9 +109,9 @@ class WalletItemListState extends State<WalletItemList> {
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
-  void navigateToDetail(WalletItem passwordItem, String lockerName) async {
+  void navigateToDetail(WalletItem walletItem, String lockerName) async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return WalletItemDetail(passwordItem, lockerName);
+      return WalletItemDetail(walletItem, lockerName);
     }));
 
     if(result) {
@@ -154,11 +122,11 @@ class WalletItemListState extends State<WalletItemList> {
   void updateListView() {
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
     dbFuture.then((database) {
-      Future<List<WalletItem>> passwordItemListFuture = databaseHelper.getWalletItemList();
-      passwordItemListFuture.then((passwordItemList) {
+      Future<List<WalletItem>> walletItemListFuture = databaseHelper.getWalletItemList();
+      walletItemListFuture.then((walletItemList) {
         setState(() {
-          this.walletItemList=passwordItemList;
-          this.count=passwordItemList.length;
+          this.walletItemList=walletItemList;
+          this.count=walletItemList.length;
         });
       });
     });
