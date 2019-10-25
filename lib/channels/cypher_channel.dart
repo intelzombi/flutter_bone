@@ -5,6 +5,21 @@ import 'package:flutter/services.dart';
 class CypherChannel {
   static const platform = const MethodChannel('iceberg.gunsnhoney.flutter_bone/cypher');
 
+  static Future<void> getIV(Function setState) async {
+    ByteBuffer iv;
+    try {
+      final Uint8List result = await platform.invokeMethod('getIV');
+      iv = Uint8List.fromList(result).buffer;
+    } on PlatformException catch (e) {
+      //iv='we didn\'t see the cat';
+    }
+    setState(iv);
+    //Hint
+//    setState(() {
+//      _iv=iv;
+//    });
+  }
+
   //Uint8List _salt;
   static Future<Uint8List> generateSalt(Function setState) async {
     Uint8List salt;

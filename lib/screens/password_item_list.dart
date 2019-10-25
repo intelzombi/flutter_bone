@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_bone/screens/password_item_detail.dart';
+import 'package:flutter_bone/channels/cypher_channel.dart';
+import 'package:flutter_bone/screens/wallet_item_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bone/models/wallet_item.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
@@ -9,43 +10,43 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 
 
-class PasswordItemList extends StatefulWidget {
+class WalletItemList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return PasswordItemListState();
+    return WalletItemListState();
   }
 }
 
-class PasswordItemListState extends State<PasswordItemList> {
+class WalletItemListState extends State<WalletItemList> {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<WalletItem> passwordItemList;
+  List<WalletItem> walletItemList;
   int count = 0;
 
-  static const platform = const MethodChannel('iceberg.gunsnhoney.flutter_bone/cypher');
+  //static const platform = const MethodChannel('iceberg.gunsnhoney.flutter_bone/cypher');
   ByteBuffer _iv;
   //String _iv ;
 
-  Future<void> _getIV() async {
-     ByteBuffer iv;
-//   String iv='nothing has changed';
-    try {
+//  Future<void> _getIV() async {
+//     ByteBuffer iv;
+////   String iv='nothing has changed';
+//    try {
+////      final Uint8List result = await platform.invokeMethod('getIV');
+////      iv.addAll(result);
 //      final Uint8List result = await platform.invokeMethod('getIV');
-//      iv.addAll(result);
-      final Uint8List result = await platform.invokeMethod('getIV');
-      iv = Uint8List.fromList(result).buffer;
-    } on PlatformException catch (e) {
-     //iv='we didn\'t see the cat';
-    }
-
-    setState(() {
-      _iv=iv;
-    });
-  }
+//      iv = Uint8List.fromList(result).buffer;
+//    } on PlatformException catch (e) {
+//     //iv='we didn\'t see the cat';
+//    }
+//
+//    setState(() {
+//      _iv=iv;
+//    });
+//  }
 
   @override
   Widget build(BuildContext context) {
-    if(passwordItemList == null) {
-      passwordItemList = List<WalletItem>();
+    if(walletItemList == null) {
+      walletItemList = List<WalletItem>();
       updateListView();
     }
     return Scaffold(
@@ -73,21 +74,21 @@ class PasswordItemListState extends State<PasswordItemList> {
           elevation: 2.0,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: getLockerTypeColor(this.passwordItemList[position].lockerType),
-              child: getLockerTypeIcon(this.passwordItemList[position].lockerType),
+              backgroundColor: getLockerTypeColor(this.walletItemList[position].lockerType),
+              child: getLockerTypeIcon(this.walletItemList[position].lockerType),
             ),
-            title: Text(this.passwordItemList[position].lockerName, style: titleStyle,),
-            subtitle: Text(this.passwordItemList[position].password),
+            title: Text(this.walletItemList[position].lockerName, style: titleStyle,),
+            subtitle: Text(this.walletItemList[position].password),
             trailing: GestureDetector(
               child: Icon(Icons.delete,color: Colors.grey,),
               onTap: () {
-                _delete(context, passwordItemList[position]);
+                _delete(context, walletItemList[position]);
               },
             ),
             onTap: () {
-              _getIV();
+              CypherChannel.getIV(ivSetState);
               debugPrint("ListTile Tapped" + _iv.toString());
-              navigateToDetail(this.passwordItemList[position],'Edit Wallet Item');
+              navigateToDetail(this.walletItemList[position],'Edit Wallet Item');
             },
           ),
         );
@@ -121,6 +122,12 @@ class PasswordItemListState extends State<PasswordItemList> {
     }
   }
 
+  void ivSetState(ByteBuffer iv) {
+    setState(() {
+      _iv = iv;
+    });
+  }
+
   void _delete(BuildContext context, WalletItem note) async {
     int result = await databaseHelper.deleteWalletItem(note.id);
     if(result != 0) {
@@ -136,7 +143,7 @@ class PasswordItemListState extends State<PasswordItemList> {
 
   void navigateToDetail(WalletItem passwordItem, String lockerName) async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return PasswordItemDetail(passwordItem, lockerName);
+      return WalletItemDetail(passwordItem, lockerName);
     }));
 
     if(result) {
@@ -150,7 +157,7 @@ class PasswordItemListState extends State<PasswordItemList> {
       Future<List<WalletItem>> passwordItemListFuture = databaseHelper.getWalletItemList();
       passwordItemListFuture.then((passwordItemList) {
         setState(() {
-          this.passwordItemList=passwordItemList;
+          this.walletItemList=passwordItemList;
           this.count=passwordItemList.length;
         });
       });

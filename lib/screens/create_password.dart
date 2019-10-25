@@ -128,7 +128,7 @@ class _CreatePasswordState extends State<CreatePassword> {
 
   void navigateToList() async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return PasswordItemList();
+      return WalletItemList();
     }));
 
     if(result) {

@@ -5,18 +5,18 @@ import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 
-class PasswordItemDetail extends StatefulWidget {
+class WalletItemDetail extends StatefulWidget {
   final String appBarTitle;
   final WalletItem note;
-  PasswordItemDetail(this.note, this.appBarTitle);
+  WalletItemDetail(this.note, this.appBarTitle);
 
   @override
   State<StatefulWidget> createState() {
-    return PaswordItemDetailState(this.note, appBarTitle);
+    return WalletItemDetailState(this.note, appBarTitle);
   }
 }
 
-class PaswordItemDetailState extends State<PasswordItemDetail> {
+class WalletItemDetailState extends State<WalletItemDetail> {
   static var _lockerTypes = ['Device', 'Site'];
   var _formKey = GlobalKey<FormState>();
   DatabaseHelper helper = DatabaseHelper();
@@ -26,8 +26,8 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
   TextEditingController passwordController = TextEditingController();
 
   String appBarTitle;
-  WalletItem passwordItem;
-  PaswordItemDetailState(this.passwordItem, this.appBarTitle);
+  WalletItem walletItem;
+  WalletItemDetailState(this.walletItem, this.appBarTitle);
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme
@@ -35,9 +35,9 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
         .textTheme
         .title;
 
-    lockerNameController.text = passwordItem.lockerName;
-    userNameController.text = passwordItem.userName;
-    passwordController.text = passwordItem.password;
+    lockerNameController.text = walletItem.lockerName;
+    userNameController.text = walletItem.userName;
+    passwordController.text = walletItem.password;
 
     return WillPopScope(
       onWillPop: () {
@@ -67,7 +67,7 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
                         );
                       }).toList(),
                       style: textStyle,
-                      value: updateLockerTypeAsString(passwordItem.lockerType),
+                      value: updateLockerTypeAsString(walletItem.lockerType),
                       onChanged: (valueSelectedByUser) {
                         setState(() {
                           debugPrint('User selected $valueSelectedByUser');
@@ -85,6 +85,7 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
                         if(value.isEmpty){
                           return 'Please enter Locker Name for the wallet item';
                         }
+                        return null;
                       },
                       controller: lockerNameController,
                       style: textStyle,
@@ -114,6 +115,7 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
                         if(value.isEmpty){
                           return 'Please enter user name for the wallet item';
                         }
+                        return null;
                       },
                       controller: userNameController,
                       style: textStyle,
@@ -144,6 +146,7 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
                         if(value.isEmpty){
                           return 'Please enter password for the wallet item';
                         }
+                        return null;
                       },
                       controller: passwordController,
                       style: textStyle,
@@ -231,10 +234,10 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
   void updateLockerTypeAsInt(String value) {
     switch (value) {
       case 'Device':
-        passwordItem.lockerType = 1;
+        walletItem.lockerType = 1;
         break;
       case 'Site':
-        passwordItem.lockerType = 2;
+        walletItem.lockerType = 2;
         break;
     }
   }
@@ -249,24 +252,24 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
   }
 
   void updateLockerName() {
-    passwordItem.lockerName = lockerNameController.text;
+    walletItem.lockerName = lockerNameController.text;
   }
 
   void updateUserName() {
-    passwordItem.userName = userNameController.text;
+    walletItem.userName = userNameController.text;
   }
 
   void updatePassword() {
-    passwordItem.password = passwordController.text;
+    walletItem.password = passwordController.text;
   }
 
   void _save() async {
     moveToLastScreen();
     int result;
-    if (passwordItem.id != null) {
-      result = await helper.updateWalletItem(passwordItem);
+    if (walletItem.id != null) {
+      result = await helper.updateWalletItem(walletItem);
     } else {
-      result = await helper.insertWalletItem(passwordItem);
+      result = await helper.insertWalletItem(walletItem);
     }
 
     if (result != 0) { //success
@@ -278,11 +281,11 @@ class PaswordItemDetailState extends State<PasswordItemDetail> {
 
   void _delete() async {
     moveToLastScreen();
-    if(passwordItem.id == null) {
+    if(walletItem.id == null) {
       _showAlertDialog('Status', 'No Wallet Item was deleted');
       return;
     }
-    int result = await helper.deleteWalletItem(passwordItem.id);
+    int result = await helper.deleteWalletItem(walletItem.id);
     if(result!=0) {
       _showAlertDialog('Status', 'Wallet Item Deleted Successfully');
     } else {

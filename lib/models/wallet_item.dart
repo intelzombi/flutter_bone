@@ -60,5 +60,4 @@ class WalletItem {
     this._password = value;
   }
 
-
 }
