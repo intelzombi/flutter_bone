@@ -1,7 +1,14 @@
 import 'dart:typed_data';
 
+import 'package:flutter_bone/models/wallet_item.dart';
+
 class WalletItemEncrypted {
   int _id;
+
+  set id(int value) {
+    _id = value;
+  }
+
   LockerName _lockerName;
   UserName _userName;
   Password _password;
@@ -14,8 +21,7 @@ class WalletItemEncrypted {
     this._password,
   );
 
-  WalletItemEncrypted.withId(this._id, this._lockerName, this._password,
-      this._lockerType, this._userName);
+  WalletItemEncrypted.withId(this._id,this._lockerType, this._lockerName, this._userName, this._password);
 
   Map<String, dynamic> toMap() {
     var map = Map<String, dynamic>();
@@ -33,10 +39,10 @@ class WalletItemEncrypted {
 
   WalletItemEncrypted.fromMapObject(Map<String, dynamic> map) {
     this._id = map['id'];
-    this._lockerName.lockerNameEncrypted = map['lockerName'];
-    this._userName.userNameEncrypted = map['userName'];
+    this._lockerName = LockerName("",  map['lockerName']);
+    this._userName = UserName("", map['userName']);
+    this._password = Password("", map['password']);
     this._lockerType = map['lockerType'];
-    this._password.passwordEncrypted = map['password'];
   }
 
   int get id => _id;
@@ -72,7 +78,7 @@ class LockerName {
   String _lockerName;
   Uint8List _lockerNameEncrypted;
 
-  LockerName();
+  LockerName(this._lockerName, this._lockerNameEncrypted);
 
   String get lockerName => _lockerName;
 
@@ -99,7 +105,7 @@ class UserName {
 
   Uint8List get userNameEncrypted => _userNameEncrypted;
 
-  UserName();
+  UserName(this._userName, this._userNameEncrypted);
 
   set userNameEncrypted(Uint8List value) {
     _userNameEncrypted = value;
@@ -118,7 +124,7 @@ class Password {
 
   Uint8List get passwordEncrypted => _passwordEncrypted;
 
-  Password();
+  Password(this._password, this._passwordEncrypted);
 
   set passwordEncrypted(Uint8List value) {
     _passwordEncrypted = value;

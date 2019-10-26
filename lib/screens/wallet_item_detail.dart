@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bone/models/wallet_item.dart';
+import 'package:flutter_bone/models/wallet_item_encrypt.dart';
+import 'package:flutter_bone/navigation/wallet_navigator.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
+import 'package:flutter_bone/utils/decrypt_encrypt.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
@@ -41,14 +44,14 @@ class WalletItemDetailState extends State<WalletItemDetail> {
 
     return WillPopScope(
       onWillPop: () {
-        moveToLastScreen();
+        moveToWalletListScreen();
       },
       child: Scaffold(
           appBar: AppBar(
             title: Text(appBarTitle),
             leading: IconButton(icon: Icon(Icons.arrow_back),
               onPressed: () {
-                moveToLastScreen();
+                moveToWalletListScreen();
               },
             ),
           ),
@@ -190,7 +193,11 @@ class WalletItemDetailState extends State<WalletItemDetail> {
                               setState(() {
                                 debugPrint("Save button clicked");
                                 if(_formKey.currentState.validate()) {
-                                  _save();
+                                  _save().then((success) {
+                                    if(success) {
+                                      moveToWalletListScreen();
+                                    }
+                                  }) ;
                                 }
                               });
                             },
@@ -227,8 +234,8 @@ class WalletItemDetailState extends State<WalletItemDetail> {
     );
   }
 
-  void moveToLastScreen() {
-    Navigator.pop(context, true);
+  void moveToWalletListScreen() {
+    WalletNavigator.navigateToList(context);
   }
 
   void updateLockerTypeAsInt(String value) {
@@ -263,31 +270,35 @@ class WalletItemDetailState extends State<WalletItemDetail> {
     walletItem.password = passwordController.text;
   }
 
-  void _save() async {
-    moveToLastScreen();
+  Future<bool> _save() async {
     int result;
+    WalletItemEncrypted walletItemEncrypted = await EncryptUtil.encryptFrom(walletItem);
     if (walletItem.id != null) {
-      result = await helper.updateWalletItem(walletItem);
+      walletItemEncrypted.id = walletItem.id;
+      result = await helper.updateWalletItemEncrypted(walletItemEncrypted);
     } else {
-      result = await helper.insertWalletItem(walletItem);
+      result = await helper.insertWalletItemEncrypted(walletItemEncrypted);
     }
 
     if (result != 0) { //success
       _showAlertDialog('Status', 'Wallet Item Saved Successfully');
+      return true;
     } else { //fail
       _showAlertDialog('Status', 'Problem Saving Wallet Item');
+      return false;
     }
+
   }
 
   void _delete() async {
-    moveToLastScreen();
+
     if(walletItem.id == null) {
       _showAlertDialog('Status', 'No Wallet Item was deleted');
       return;
     }
     int result = await helper.deleteWalletItem(walletItem.id);
     if(result!=0) {
-      _showAlertDialog('Status', 'Wallet Item Deleted Successfully');
+      moveToWalletListScreen();
     } else {
       _showAlertDialog('Status', 'Error Occured while Deleting Wallet Item');
     }
@@ -300,3 +311,4 @@ class WalletItemDetailState extends State<WalletItemDetail> {
     showDialog(context: context,builder: (_) => alertDialog);
   }
 }
+

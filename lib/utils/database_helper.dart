@@ -1,5 +1,6 @@
 import 'package:flutter_bone/models/password_item.dart';
 import 'package:flutter_bone/models/salt_pepper_item.dart';
+import 'package:flutter_bone/models/wallet_item_encrypt.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:io';
@@ -41,14 +42,21 @@ class DatabaseHelper {
   Future<Database> initializeDatabase() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String path = directory.path + 'passwordWallet.db';
-    var passwordWalletDatabase = await openDatabase(path, version: 1, onCreate: _createDb);
+    var passwordWalletDatabase = await openDatabase(path, version: 1, onCreate: _createEncryptedDb);
     return passwordWalletDatabase;
 
   }
 
   void _createDb(Database db, int newVersion) async {
     await db.execute('CREATE TABLE $walletItemTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colLockerName TEXT, '
-    '$colUserName TEXT, $colPassword TEXT, $colLockerType INTEGER)');
+        '$colUserName TEXT, $colPassword TEXT, $colLockerType INTEGER)');
+    await db.execute('CREATE TABLE $saltPepperTable($colId INTEGER PRIMARY KEY, $colSalt BLOB, $colPepper BLOB)' );
+    await db.execute('CREATE TABLE $passwordTable($colId INTEGER PRIMARY KEY, $colPassword BLOB)');
+  }
+
+  void _createEncryptedDb(Database db, int newVersion) async {
+    await db.execute('CREATE TABLE $walletItemTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colLockerName BLOB, '
+        '$colUserName BLOB, $colPassword BLOB, $colLockerType INTEGER)');
     await db.execute('CREATE TABLE $saltPepperTable($colId INTEGER PRIMARY KEY, $colSalt BLOB, $colPepper BLOB)' );
     await db.execute('CREATE TABLE $passwordTable($colId INTEGER PRIMARY KEY, $colPassword BLOB)');
   }
@@ -95,6 +103,13 @@ class DatabaseHelper {
   }
 
   //Insert
+  Future<int> insertWalletItemEncrypted(WalletItemEncrypted walletItem) async {
+    Database db = await this.database;
+    var result = await db.insert(walletItemTable, walletItem.toMap());
+    return result;
+  }
+
+  //Insert
   Future<int> insertPasswordItem(PasswordItem passwordItem) async {
     Database db = await this.database;
     var result = await db.insert(passwordTable, passwordItem.toMap());
@@ -110,6 +125,13 @@ class DatabaseHelper {
 
   //Update
   Future<int> updateWalletItem(WalletItem walletItem) async {
+    Database db = await this.database;
+    var result = await db.update(walletItemTable, walletItem.toMap(), where: '$colId = ?', whereArgs: [walletItem.id]);
+    return result;
+  }
+
+  //Update
+  Future<int> updateWalletItemEncrypted(WalletItemEncrypted walletItem) async {
     Database db = await this.database;
     var result = await db.update(walletItemTable, walletItem.toMap(), where: '$colId = ?', whereArgs: [walletItem.id]);
     return result;
@@ -170,15 +192,27 @@ class DatabaseHelper {
 
 
   Future<List<WalletItem>> getWalletItemList() async {
-    var passwordItemMapList = await getWalletItemMapList();
-    int count = passwordItemMapList.length;
+    var walletItemMapList = await getWalletItemMapList();
+    int count = walletItemMapList.length;
 
     List<WalletItem> walletItemList = List<WalletItem>();
 
     for (int i=0; i<count; i++) {
-      walletItemList.add(WalletItem.fromMapObject(passwordItemMapList[i]));
+      walletItemList.add(WalletItem.fromMapObject(walletItemMapList[i]));
     }
     return walletItemList;
+  }
+
+  Future<List<WalletItemEncrypted>> getWalletItemEncryptedList() async {
+    var walletItemMapList = await getWalletItemMapList();
+    int count = walletItemMapList.length;
+
+    List<WalletItemEncrypted> walletItemEncryptedList = List<WalletItemEncrypted>();
+
+    for (int i=0; i<count; i++) {
+      walletItemEncryptedList.add(WalletItemEncrypted.fromMapObject(walletItemMapList[i]));
+    }
+    return walletItemEncryptedList;
   }
 
   Future<List<SaltPepperItem>> getSaltPepperItemList() async {

@@ -6,7 +6,7 @@ class WalletItem {
   int _lockerType;
 
   WalletItem(this._lockerType, this._lockerName,  this._userName, this._password,);
-  WalletItem.withId(this._id, this._lockerName, this._password, this._lockerType, this._userName);
+  WalletItem.withId(this._id, this._lockerName, this._userName, this._password, this._lockerType);
 
   Map<String, dynamic> toMap() {
     var map = Map<String, dynamic>();

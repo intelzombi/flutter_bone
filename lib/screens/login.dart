@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bone/channels/cypher_channel.dart';
+import 'package:flutter_bone/data/password_data.dart';
 import 'package:flutter_bone/data/password_data_util.dart';
 import 'package:flutter_bone/data/salt_pepper.dart';
 import 'package:flutter_bone/data/salt_pepper_util.dart';
@@ -207,10 +208,12 @@ class _LoginState extends State<Login> {
             "Password is Incorrect",
             "Please Re-Enter Password \nHave you SET your password?");
       }else {
-        Uint8List encryptPassord = _passwordItemList[0].password;
-        await CypherChannel.decryptMsg(decryptSetState, encryptPassord, _password,
+        Uint8List encryptPassword = _passwordItemList[0].password;
+        await CypherChannel.decryptMsg(decryptSetState, encryptPassword, _password,
             SaltPepper.salt, SaltPepper.pepper);
         if (_comparePasswords()) {
+          PasswordData.password = encryptPassword;
+          PasswordData.clearPassword = _password;
           WalletNavigator.navigateToList(context);
         } else {
           Notifier(context).showAlertDialog(
