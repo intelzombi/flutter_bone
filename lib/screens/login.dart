@@ -222,8 +222,8 @@ class _LoginState extends State<Login> {
         }
       }
     }
-
   }
+
   void updatePassword() {
     _password = passwordController.text;
   }
