@@ -166,8 +166,7 @@ class _LoginState extends State<Login> {
                               textScaleFactor: 1.5,
                             ),
                             onPressed: () {
-                              //TODO create update password screen
-                              WalletNavigator.navigateToCreatePassword(context);
+                              WalletNavigator.navigateToUpdatePassword(context);
                             },
                           ),
                         ],

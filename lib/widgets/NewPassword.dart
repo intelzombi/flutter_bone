@@ -5,13 +5,14 @@ import 'package:flutter_bone/utils/utils.dart';
 class NewPassword extends StatefulWidget {
 
   Function successfulAction;
+  bool updateEnabled;
 
   @override
   NewPasswordState createState() {
     return NewPasswordState(successfulAction);
   }
 
-  NewPassword(this.successfulAction);
+  NewPassword(this.successfulAction, {this.updateEnabled=true,});
 }
 
 class NewPasswordState extends State<NewPassword> {
@@ -21,6 +22,17 @@ class NewPasswordState extends State<NewPassword> {
   Function successfulAction;
 
   NewPasswordState(this.successfulAction);
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +109,10 @@ class NewPasswordState extends State<NewPassword> {
                     Padding(
                       padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
                       child: RaisedButton(
-                        color: Theme
+                        color: widget.updateEnabled ? Theme
                             .of(context)
-                            .primaryColorDark,
+                            .primaryColorDark:
+                        Theme.of(context).primaryColorLight,
                         textColor: Theme
                             .of(context)
                             .primaryColorLight,
@@ -107,7 +120,8 @@ class NewPasswordState extends State<NewPassword> {
                           'Create Password',
                           textScaleFactor: 1.5,
                         ),
-                        onPressed: () {
+                        onPressed:  !widget.updateEnabled ? null : () {
+
                           if (_formKey.currentState.validate()) {
                             if (_comparePasswords()) {
                               successfulAction(passwordController.text);
