@@ -8,6 +8,7 @@ import 'package:flutter_bone/data/password_data_util.dart';
 import 'package:flutter_bone/data/salt_pepper.dart';
 import 'package:flutter_bone/data/salt_pepper_util.dart';
 import 'package:flutter_bone/models/salt_pepper_item.dart';
+import 'package:flutter_bone/navigation/wallet_navigator.dart';
 import 'package:flutter_bone/screens/wallet_item_list.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
 import 'package:flutter_bone/widgets/NewPassword.dart';
@@ -91,7 +92,7 @@ class _CreatePasswordState extends State<CreatePassword> {
     _password = password;
     await SaltPepperUtil.generateSaltPepper(databaseHelper,saltSetState,pepperSetState);
     await PasswordDataUtil.generatePasswordData(databaseHelper, _password, passwordDataSetState);
-    navigateToList();
+    WalletNavigator.navigateToList(context);
   }
 
   void moveToLastScreen() {
@@ -128,7 +129,7 @@ class _CreatePasswordState extends State<CreatePassword> {
 
   void navigateToList() async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return WalletItemList();
+      return WalletItemListScreen();
     }));
 
     if(result) {

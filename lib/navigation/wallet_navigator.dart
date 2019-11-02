@@ -9,7 +9,7 @@ import 'package:flutter_bone/screens/wallet_item_list.dart';
 class WalletNavigator {
   static void navigateToList(BuildContext context) async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return WalletItemList();
+      return WalletItemListScreen();
     }));
 
     if(result) {
@@ -19,7 +19,7 @@ class WalletNavigator {
 
   static void navigateToDetail(Function updateView, BuildContext context, WalletItem passwordItem, String lockerName) async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return WalletItemDetail(passwordItem, lockerName);
+      return WalletItemDetailScreen(passwordItem, lockerName);
     }));
 
     if(result) {

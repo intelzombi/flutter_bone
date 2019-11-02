@@ -8,18 +8,18 @@ import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 
-class WalletItemDetail extends StatefulWidget {
+class WalletItemDetailScreen extends StatefulWidget {
   final String appBarTitle;
-  final WalletItem note;
-  WalletItemDetail(this.note, this.appBarTitle);
+  final WalletItem walletItem;
+  WalletItemDetailScreen(this.walletItem, this.appBarTitle);
 
   @override
   State<StatefulWidget> createState() {
-    return WalletItemDetailState(this.note, appBarTitle);
+    return WalletItemDetailScreenState(this.walletItem, appBarTitle);
   }
 }
 
-class WalletItemDetailState extends State<WalletItemDetail> {
+class WalletItemDetailScreenState extends State<WalletItemDetailScreen> {
   static var _lockerTypes = ['Device', 'Site'];
   var _formKey = GlobalKey<FormState>();
   DatabaseHelper helper = DatabaseHelper();
@@ -30,7 +30,7 @@ class WalletItemDetailState extends State<WalletItemDetail> {
 
   String appBarTitle;
   WalletItem walletItem;
-  WalletItemDetailState(this.walletItem, this.appBarTitle);
+  WalletItemDetailScreenState(this.walletItem, this.appBarTitle);
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme
@@ -45,6 +45,7 @@ class WalletItemDetailState extends State<WalletItemDetail> {
     return WillPopScope(
       onWillPop: () {
         moveToWalletListScreen();
+        return;
       },
       child: Scaffold(
           appBar: AppBar(
