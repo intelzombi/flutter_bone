@@ -113,7 +113,7 @@ class _LoginState extends State<Login> {
                 Form(
                   key: _formKey,
                   child: Padding(
-                      padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+                      padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
                       child: Column(
                         children: <Widget>[
                           TextFormField(
@@ -133,6 +133,7 @@ class _LoginState extends State<Login> {
                               return null;
                             },
                           ),
+                          Container(width: 5.0, height: 10.0,),
                           RaisedButton(
                             color: Theme.of(context).primaryColorDark,
                             textColor: Theme.of(context).primaryColorLight,
@@ -145,24 +146,24 @@ class _LoginState extends State<Login> {
                               //_submitLogin();
                             },
                           ),
-                          Container(width: 5.0),
+                          Container(width: 5.0,height: 10,),
                           RaisedButton(
                             color: Theme.of(context).primaryColorDark,
                             textColor: Theme.of(context).primaryColorLight,
                             child: Text(
-                              'set',
+                              'Create Password',
                               textScaleFactor: 1.5,
                             ),
                             onPressed: () {
                               WalletNavigator.navigateToCreatePassword(context);
                             },
                           ),
-                          Container(width: 5.0),
+                          Container(width: 5.0, height: 10,),
                           RaisedButton(
                             color: Theme.of(context).primaryColorDark,
                             textColor: Theme.of(context).primaryColorLight,
                             child: Text(
-                              'update password',
+                              'Update Password',
                               textScaleFactor: 1.5,
                             ),
                             onPressed: () {
