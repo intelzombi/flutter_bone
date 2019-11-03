@@ -100,7 +100,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                             controller: passwordController,
                             style: textStyle,
                             decoration: InputDecoration(
-                                labelText: "Password A-Z,a-z,0-9,special",
+                                labelText: "PW...AZ,az,09,!@#\$%..",
                                 labelStyle: textStyle,
                                 errorStyle: TextStyle(
                                   color: Colors.redAccent,

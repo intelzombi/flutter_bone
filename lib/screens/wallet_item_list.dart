@@ -91,23 +91,23 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
   Color getLockerTypeColor(int lockerType) {
     switch (lockerType) {
       case 1:
-        return Colors.red;
+        return Colors.blue[900];
         break;
       case 2:
-        return Colors.yellow;
+        return Colors.lightGreen[60];
         break;
       default:
-        return Colors.yellow;
+        return Colors.blue;
     }
   }
 
   Icon getLockerTypeIcon(int lockerType) {
     switch (lockerType) {
       case 1:
-        return Icon(Icons.play_arrow);
+        return Icon(Icons.computer);
         break;
       case 2:
-        return Icon(Icons.keyboard_arrow_right);
+        return Icon(Icons.web);
         break;
       default:
         return Icon(Icons.keyboard_arrow_right);
@@ -197,6 +197,14 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
             walletItemEncrypted.lockerType));
       }
     }
+    walletItemList.sort((a,b) {
+      int returnVal = a.lockerType.compareTo(b.lockerType);
+      if(returnVal==0) {
+        returnVal = a.lockerName.compareTo(b.lockerName);
+      }
+      return returnVal;
+    });
+
     setState(() {
       this.walletItemList = walletItemList;
       this.count = walletItemList.length;
