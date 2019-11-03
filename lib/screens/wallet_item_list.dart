@@ -43,7 +43,7 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
           navigateToDetail(WalletItem(2, '', '', ''), "Add Wallet Item");
         },
         tooltip: '2 cents',
-        child: Icon(Icons.add),
+        child: Icon(Icons.playlist_add),
       ),
     );
   }
@@ -94,7 +94,7 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
         return Colors.blue[900];
         break;
       case 2:
-        return Colors.lightGreen[60];
+        return Colors.green;
         break;
       default:
         return Colors.blue;
@@ -200,7 +200,7 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
     walletItemList.sort((a,b) {
       int returnVal = a.lockerType.compareTo(b.lockerType);
       if(returnVal==0) {
-        returnVal = a.lockerName.compareTo(b.lockerName);
+        returnVal = a.lockerName.toLowerCase().compareTo(b.lockerName.toLowerCase());
       }
       return returnVal;
     });
