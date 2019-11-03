@@ -100,7 +100,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                             controller: passwordController,
                             style: textStyle,
                             decoration: InputDecoration(
-                                labelText: "Password A-Z,a-z,0-9,special",
+                                labelText: "PW...AZ,az,09,!@#\$%..",
                                 labelStyle: textStyle,
                                 errorStyle: TextStyle(
                                   color: Colors.redAccent,
@@ -143,13 +143,13 @@ class _UpdatePasswordState extends State<UpdatePassword> {
   int count = 0;
   Future<void> updateListViewFromEncrypted() async {
     await databaseHelper.initializeDatabase();
-    List<WalletItemEncrypted> walletItemListEncrypted =
+    List<WalletItemEncrypted> walletItemListEncryptedlist =
     await databaseHelper.getWalletItemEncryptedList();
     List<WalletItem> walletItemList = List<WalletItem>();
-    for (WalletItemEncrypted walletItemEncrypted in walletItemListEncrypted) {
-      WalletItem walletItem =
+    for (WalletItemEncrypted walletItemEncrypted in walletItemListEncryptedlist) {
+      walletItemEncrypted =
       await DecryptUtil.decryptFrom(walletItemEncrypted);
-      walletItemList.add(walletItem);
+      walletItemList.add(WalletItem(walletItemEncrypted.lockerType,walletItemEncrypted.lockerName.lockerName,walletItemEncrypted.userName.userName,walletItemEncrypted.password.password));
     }
     setState(() {
       this.walletItemList = walletItemList;
@@ -196,7 +196,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
     await PasswordDataUtil.generatePasswordData(databaseHelper, _password, passwordDataSetState);
     await updateWalletItems();
     //
-    navigateToList();
+    WalletNavigator.navigateToList(context);
   }
 
   void moveToLastScreen() {
@@ -239,7 +239,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
 
   void navigateToList() async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return WalletItemList();
+      return WalletItemListScreen();
     }));
 
     if(result) {
