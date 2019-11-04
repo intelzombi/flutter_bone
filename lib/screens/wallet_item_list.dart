@@ -211,6 +211,9 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
       return returnVal;
     });
 
+//    for(WalletItem wi in walletItemList) {
+//      debugPrint(wi.lockerName + "\n" + wi.userName + "\n" + wi.password + "\n\n");
+//    }
     setState(() {
       this.walletItemList = walletItemList;
       this.count = walletItemList.length;
