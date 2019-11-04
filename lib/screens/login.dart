@@ -78,9 +78,9 @@ class _LoginState extends State<Login> {
         appBar: AppBar(
           title: Text(appBarTitle),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.casino),
             onPressed: () {
-              moveToLastScreen();
+              //moveToLastScreen();
             },
           ),
         ),
