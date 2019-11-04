@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bone/models/wallet_item.dart';
 import 'package:flutter_bone/screens/create_password.dart';
+import 'package:flutter_bone/screens/login.dart';
 import 'package:flutter_bone/screens/update_password.dart';
 import 'package:flutter_bone/screens/wallet_item_detail.dart';
 import 'package:flutter_bone/screens/wallet_item_list.dart';
@@ -24,6 +25,16 @@ class WalletNavigator {
 
     if(result) {
       updateView();
+    }
+  }
+
+  static void navigateToLogin(BuildContext context) async {
+    bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Login();
+    }));
+
+    if(result) {
+      // do something maybe
     }
   }
 

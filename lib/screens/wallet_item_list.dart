@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bone/data/persistent_wallet_items.dart';
 import 'package:flutter_bone/models/wallet_item.dart';
 import 'package:flutter_bone/models/wallet_item_encrypt.dart';
+import 'package:flutter_bone/navigation/wallet_navigator.dart';
 import 'package:flutter_bone/screens/wallet_item_detail.dart';
 import 'package:flutter_bone/utils/database_helper.dart';
 import 'package:flutter_bone/utils/decrypt_encrypt.dart';
@@ -34,7 +35,9 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Password Wallet'),
+        title: Text('Password Wallet'), leading: IconButton(icon:Icon(Icons.home),
+            onPressed:() => WalletNavigator.navigateToLogin(context),
+          )
       ),
       body: getListView(),
       floatingActionButton: FloatingActionButton(
@@ -74,6 +77,9 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
                 color: Colors.grey,
               ),
               onTap: () {
+                _showSnackBar(context, 'Press and hold to delete');
+              },
+              onLongPress: () {
                 _delete(context, walletItemList[position]);
               },
             ),
@@ -205,6 +211,9 @@ class WalletItemListScreenState extends State<WalletItemListScreen> {
       return returnVal;
     });
 
+//    for(WalletItem wi in walletItemList) {
+//      debugPrint(wi.lockerName + "\n" + wi.userName + "\n" + wi.password + "\n\n");
+//    }
     setState(() {
       this.walletItemList = walletItemList;
       this.count = walletItemList.length;
