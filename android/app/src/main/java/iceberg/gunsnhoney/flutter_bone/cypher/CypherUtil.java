@@ -30,7 +30,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class CypherUtil {
     private static SecretKey secret;
-    private static final int iterationCount = 0x1962;
+    private static final int iterationCount = 0x7aa;
     private static final int saltLength = 32; // 256/8   AES 256
     private static final int keyLength = 256; // AES
     private static byte[] initializationVector;
